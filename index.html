@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content=device-width, initial-scale=1.0">
+    <title>Ahorcado Multijugador Simple</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="menu">
+        <h1>Ahorcado Multijugador</h1>
+        <button onclick="crearSala()">Crear Sala (Host)</button>
+        <button onclick="mostrarUnirse()">Unirse a Sala</button>
+    </div>
+
+    <div id="unirse" class="hidden">
+        <h2>Unirse a sala</h2>
+        <input id="codigoSala" placeholder="Código de sala">
+        <input id="nombreJugador" placeholder="Tu nombre">
+        <button onclick="unirseSala()">Ingresar</button>
+        <button onclick="volverMenu()">Volver</button>
+    </div>
+
+    <div id="host" class="hidden">
+        <h2>Sala creada</h2>
+        <p>Código: <b id="miCodigo"></b></p>
+        <h3>Jugadores conectados:</h3>
+        <ul id="listaJugadores"></ul>
+        <button onclick="iniciarJuego()">Iniciar juego</button>
+        <button onclick="volverMenu()">Volver</button>
+    </div>
+
+    <div id="juego" class="hidden">
+        <h2>Ronda <span id="rondaActual">1</span> de 5</h2>
+        <p><b>Palabra:</b> <span id="palabraOculta"></span></p>
+        <p>Letras usadas: <span id="letrasUsadas"></span></p>
+        <p>Turno de: <b id="turnoJugador"></b></p>
+
+        <div id="areaLetra">
+            <input id="inputLetra" maxlength="1" placeholder="Letra">
+            <button onclick="enviarLetra()">Enviar</button>
+        </div>
+    </div>
+
+    <script src="peer.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
