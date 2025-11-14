@@ -348,9 +348,10 @@ function actualizarVistaJuego(data) {
   }
 
   // Aseguramos que la vista de juego esté visible si ya estamos dentro de una sala
-  if (salaCodigo && !document.getElementById("view-juego").classList.contains("active")) {
+  if (data.estado === "jugando") {
     mostrarVista("view-juego");
-  }
+}
+
 }
 
 function deshabilitarInput(disabled) {
