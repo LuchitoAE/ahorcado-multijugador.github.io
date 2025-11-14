@@ -1,49 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content=device-width, initial-scale=1.0">
-    <title>Ahorcado Multijugador Simple</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <!-- Viewport correcto para móviles -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ahorcado Multijugador - Valores</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <main class="app">
+    <!-- Vista MENÚ -->
+    <section id="view-menu" class="view active">
+      <h1>Ahorcado de Valores</h1>
+      <p class="subtitle">Juego para 3° de primaria - Personal Social</p>
 
-    <div id="menu">
-        <h1>Ahorcado Multijugador</h1>
-        <button onclick="crearSala()">Crear Sala (Host)</button>
-        <button onclick="mostrarUnirse()">Unirse a Sala</button>
-    </div>
+      <div class="card buttons">
+        <button id="btn-docente" class="btn primary">Soy docente (crear sala)</button>
+        <button id="btn-estudiante" class="btn">Soy estudiante (unirme)</button>
+      </div>
+    </section>
 
-    <div id="unirse" class="hidden">
-        <h2>Unirse a sala</h2>
-        <input id="codigoSala" placeholder="Código de sala">
-        <input id="nombreJugador" placeholder="Tu nombre">
-        <button onclick="unirseSala()">Ingresar</button>
-        <button onclick="volverMenu()">Volver</button>
-    </div>
+    <!-- Vista DOCENTE: crear sala -->
+    <section id="view-docente" class="view">
+      <h2>Crear sala</h2>
+      <div class="card">
+        <label class="field">
+          <span>Tu nombre (docente):</span>
+          <input id="docente-nombre" type="text" placeholder="Ej. Profe Luis" />
+        </label>
 
-    <div id="host" class="hidden">
-        <h2>Sala creada</h2>
-        <p>Código: <b id="miCodigo"></b></p>
-        <h3>Jugadores conectados:</h3>
-        <ul id="listaJugadores"></ul>
-        <button onclick="iniciarJuego()">Iniciar juego</button>
-        <button onclick="volverMenu()">Volver</button>
-    </div>
+        <button id="btn-crear-sala" class="btn primary">Crear sala</button>
 
-    <div id="juego" class="hidden">
-        <h2>Ronda <span id="rondaActual">1</span> de 5</h2>
-        <p><b>Palabra:</b> <span id="palabraOculta"></span></p>
-        <p>Letras usadas: <span id="letrasUsadas"></span></p>
-        <p>Turno de: <b id="turnoJugador"></b></p>
+        <div id="docente-info-sala" class="hidden">
+          <p>Código de sala:</p>
+          <p class="codigo" id="texto-codigo"></p>
+          <p class="ayuda">
+            Pídeles a los estudiantes que entren a la página y escriban este código.
+          </p>
+          <p><b>Jugadores conectados:</b></p>
+          <ul id="lista-jugadores" class="lista"></ul>
 
-        <div id="areaLetra">
-            <input id="inputLetra" maxlength="1" placeholder="Letra">
-            <button onclick="enviarLetra()">Enviar</button>
+          <button id="btn-iniciar-juego" class="btn success" disabled>
+            Iniciar juego
+          </button>
         </div>
-    </div>
 
-    <script src="peer.min.js"></script>
-    <script src="app.js"></script>
+        <button class="btn link" id="btn-volver-docente">Volver al menú</button>
+      </div>
+    </section>
+
+    <!-- Vista ESTUDIANTE: unirse -->
+    <section id="view-estudiante" class="view">
+      <h2>Unirse a una sala</h2>
+      <div class="card">
+        <label class="field">
+          <span>Código de sala:</span>
+          <input id="join-codigo" type="text" maxlength="8" placeholder="Ej. ABC123" />
+        </label>
+
+        <label class="field">
+          <span>Tu nombre:</span>
+          <input id="join-nombre" type="text" placeholder="Ej. Ana" />
+        </label>
+
+        <button id="btn-unirse" class="btn primary">Unirse</button>
+        <p id="join-error" class="error"></p>
+
+        <button class="btn link" id="btn-volver-estudiante">Volver al menú</button>
+      </div>
+    </section>
+
+    <!-- Vista JUEGO -->
+    <section id="view-juego" class="view">
+      <h2>Juego del ahorcado</h2>
+      <div class="card">
+        <p><b>Código de sala:</b> <span id="juego-codigo"></span></p>
+        <p><b>Tú eres:</b> <span id="juego-nombre"></span>
+          <span id="juego-rol" class="badge"></span>
+        </p>
+
+        <hr />
+
+        <p><b>Jugadores:</b></p>
+        <ul id="juego-lista-jugadores" class="lista"></ul>
+
+        <hr />
+
+        <p><b>Ronda:</b> <span id="juego-ronda">1</span> / 5</p>
+        <p><b>Tema:</b> <span id="juego-tema"></span></p>
+        <p><b>Pista:</b> <span id="juego-pista"></span></p>
+
+        <p class="palabra">
+          <span id="juego-palabra"></span>
+        </p>
+
+        <p><b>Letras usadas:</b> <span id="juego-letras"></span></p>
+        <p><b>Fallos:</b> <span id="juego-fallos"></span> / 6</p>
+
+        <p class="turno">
+          Turno de: <b id="juego-turno-nombre"></b>
+        </p>
+
+        <div id="zona-input" class="input-letra">
+          <input id="input-letra" type="text" maxlength="1" placeholder="Letra" />
+          <button id="btn-enviar-letra" class="btn primary">Probar letra</button>
+        </div>
+
+        <p id="juego-mensaje" class="mensaje"></p>
+
+        <button class="btn link" id="btn-salir-juego">Salir</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Nuestro JS con Firebase y lógica del juego -->
+  <script type="module" src="app.js"></script>
 </body>
 </html>

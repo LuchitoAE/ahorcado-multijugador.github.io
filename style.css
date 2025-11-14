@@ -1,31 +1,180 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    text-align: center;
-    padding: 20px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+h1,
+h2 {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn {
+  border: none;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+
+.btn.primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.btn.success {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.btn.link {
+  background: transparent;
+  color: #2563eb;
+  text-decoration: underline;
+  box-shadow: none;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.field span {
+  margin-bottom: 4px;
+}
+
+input[type="text"] {
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+}
+
+.codigo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  margin: 8px 0 4px;
+}
+
+.ayuda {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.lista {
+  list-style: none;
+  text-align: left;
+  margin: 8px 0 12px;
+  font-size: 0.9rem;
+}
+
+.lista li {
+  padding: 2px 0;
+}
+
+.badge {
+  background: #e5e7eb;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+
+.palabra {
+  font-size: 1.8rem;
+  letter-spacing: 0.2em;
+  margin: 12px 0;
+}
+
+.turno {
+  margin: 8px 0;
+}
+
+.input-letra {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 4px;
+}
+
+.input-letra input {
+  flex: 1;
+}
+
+.mensaje {
+  min-height: 20px;
+  font-size: 0.95rem;
+  margin-top: 6px;
+}
+
+.error {
+  color: #b91c1c;
+  margin-top: 4px;
+  min-height: 18px;
+  font-size: 0.9rem;
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
-input {
-    display: block;
-    margin: 10px auto;
-    padding: 10px;
-    width: 80%;
-    max-width: 300px;
-}
-
-button {
-    padding: 10px 20px;
-    margin: 10px;
-    background: #1976D2;
-    color: white;
-    border: none;
-    border-radius: 5px;
-}
-
-#juego {
-    margin-top: 20px;
+/* móvil primero, pero igual se ve bien en pantallas grandes */
+@media (min-width: 640px) {
+  .app {
+    margin-top: 32px;
+  }
 }
