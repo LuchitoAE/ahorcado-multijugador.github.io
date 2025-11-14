@@ -1,3 +1,7 @@
+/* ---------------------------- */
+/* ESTILO CARTOON PARA NIÑOS    */
+/* ---------------------------- */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,11 +9,13 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f3f4f6;
-  color: #111827;
+  font-family: 'Poppins', system-ui, sans-serif;
+  background: linear-gradient(180deg, #dff4ff 0%, #fef6d3 100%);
+  color: #2d2d2d;
+  padding-bottom: 30px;
 }
 
+/* CONTENEDOR GENERAL */
 .app {
   max-width: 480px;
   margin: 0 auto;
@@ -20,75 +26,98 @@ h1,
 h2 {
   text-align: center;
   margin-bottom: 8px;
+  font-weight: 800;
+  color: #333;
 }
 
 .subtitle {
   text-align: center;
   font-size: 0.9rem;
-  color: #6b7280;
+  color: #555;
   margin-bottom: 16px;
 }
 
+/* VISTAS */
 .view {
   display: none;
 }
-
 .view.active {
   display: block;
 }
 
+/* TARJETAS */
 .card {
   background: #ffffff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
+              0 0 0 4px rgba(255, 221, 87, 0.4);
+  margin-top: 8px;
 }
 
+/* BOTONES */
 .buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .btn {
   border: none;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border-radius: 999px;
-  background: #e5e7eb;
-  color: #111827;
+  background: #ffdd57;
+  color: #2d2d2d;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   width: 100%;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 0 #e2b93c;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #e2b93c;
+}
+
+.btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 #e2b93c;
 }
 
 .btn.primary {
-  background: #2563eb;
-  color: #ffffff;
+  background: #4da3ff;
+  box-shadow: 0 4px 0 #3279c4;
+  color: #fff;
 }
 
 .btn.success {
-  background: #16a34a;
-  color: #ffffff;
+  background: #35c759;
+  box-shadow: 0 4px 0 #24963f;
+  color: white;
 }
 
 .btn.link {
   background: transparent;
-  color: #2563eb;
+  color: #4da3ff;
   text-decoration: underline;
   box-shadow: none;
+  font-size: 0.95rem;
 }
 
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
+/* ENTRADAS */
 .field {
   display: flex;
   flex-direction: column;
   text-align: left;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   font-size: 0.9rem;
 }
 
@@ -97,74 +126,93 @@ h2 {
 }
 
 input[type="text"] {
-  padding: 10px 12px;
+  padding: 10px 14px;
   border-radius: 999px;
-  border: 1px solid #d1d5db;
+  border: 2px solid #aacdf8;
   font-size: 1rem;
+  transition: border-color 0.2s ease;
 }
 
+input[type="text"]:focus {
+  border-color: #4da3ff;
+  outline: none;
+}
+
+/* CODIGO */
 .codigo {
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
   margin: 8px 0 4px;
+  color: #ff9f29;
 }
 
-.ayuda {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin-bottom: 8px;
-}
-
+/* LISTAS */
 .lista {
   list-style: none;
   text-align: left;
-  margin: 8px 0 12px;
-  font-size: 0.9rem;
+  margin: 6px 0 12px;
+  font-size: 0.95rem;
 }
 
 .lista li {
-  padding: 2px 0;
+  padding: 4px 0;
 }
 
+/* BADGES */
 .badge {
-  background: #e5e7eb;
+  background: #ffdd57;
   border-radius: 999px;
-  padding: 2px 8px;
+  padding: 3px 10px;
   font-size: 0.75rem;
-  margin-left: 4px;
+  margin-left: 6px;
+  font-weight: 600;
 }
 
+/* PALABRA DEL AHORCADO */
 .palabra {
-  font-size: 1.8rem;
-  letter-spacing: 0.2em;
-  margin: 12px 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  margin: 16px 0;
+  text-align: center;
+  color: #333;
 }
 
+/* TURNO */
 .turno {
   margin: 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #444;
 }
 
+/* INPUT LETRA */
 .input-letra {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   margin: 8px 0 4px;
 }
 
 .input-letra input {
   flex: 1;
+  border: 2px solid #ffb703;
+  font-weight: 600;
 }
 
 .mensaje {
-  min-height: 20px;
-  font-size: 0.95rem;
+  min-height: 22px;
+  font-size: 1rem;
   margin-top: 6px;
+  font-weight: 600;
+  color: #ff6b6b;
 }
 
+/* ERRORES */
 .error {
-  color: #b91c1c;
+  color: #d00000;
   margin-top: 4px;
-  min-height: 18px;
+  min-height: 20px;
   font-size: 0.9rem;
 }
 
@@ -172,9 +220,9 @@ input[type="text"] {
   display: none;
 }
 
-/* móvil primero, pero igual se ve bien en pantallas grandes */
+/* RESPONSIVE */
 @media (min-width: 640px) {
   .app {
-    margin-top: 32px;
+    margin-top: 28px;
   }
 }
