@@ -349,7 +349,7 @@ function actualizarVistaJuego(data) {
 
   // Aseguramos que la vista de juego esté visible si ya estamos dentro de una sala
   if (data.estado === "jugando") {
-    mostrarVista("view-juego");
+    //mostrarVista("view-juego");
 }
 
 }
