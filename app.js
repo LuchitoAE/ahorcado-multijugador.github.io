@@ -1,18 +1,26 @@
-// Importamos Firebase desde la CDN (sin bundlers)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+// =========================
+//  IMPORTS FIREBASE
+// =========================
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+
 import {
   getFirestore,
   doc,
-  getDoc,
   setDoc,
   updateDoc,
-  collection,
+  getDoc,
   addDoc,
+  collection,
   onSnapshot,
   serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// === CONFIGURACIÓN DE TU PROYECTO ===
+
+// =========================
+//  CONFIG FIREBASE
+// =========================
 const firebaseConfig = {
   apiKey: "AIzaSyBQhQ9plZjjtJtKVgQQ6Tacou-V8KjjwxU",
   authDomain: "ahorcado-multijugador.firebaseapp.com",
@@ -23,138 +31,115 @@ const firebaseConfig = {
   measurementId: "G-0LJBY6EMBS"
 };
 
-// Inicializar Firebase y Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// === CONSTANTES DEL JUEGO ===
-const MAX_FALLOS = 6;
-const RONDAS = [
-  {
-    tema: "Valor",
-    pista: "Es importante para convivir con los demás.",
-    palabra: "RESPETO"
-  },
-  {
-    tema: "Valor",
-    pista: "Ser sincero y decir la verdad.",
-    palabra: "HONESTIDAD"
-  },
-  {
-    tema: "Valor",
-    pista: "Cumplir con tus tareas y compromisos.",
-    palabra: "RESPONSABILIDAD"
-  },
-  {
-    tema: "Valor",
-    pista: "Ayudar a los demás sin esperar nada a cambio.",
-    palabra: "SOLIDARIDAD"
-  },
-  {
-    tema: "Valor",
-    pista: "Ponerse en el lugar del otro.",
-    palabra: "EMPATIA"
-  }
+
+// =========================
+//  VARIABLES DE ESTADO
+// =========================
+let usuario = { nombre: "", rol: "", jugadorId: "" };
+let salaActual = "";
+let stopJugadoresListener = null;
+let stopSalaListener = null;
+
+// Lista de palabras por rondas
+const rondas = [
+  { tema: "Respeto", pista: "Valor que demuestra consideración", palabra: "RESPETO" },
+  { tema: "Honestidad", pista: "Valor de decir la verdad", palabra: "HONESTIDAD" },
+  { tema: "Amistad", pista: "Relación basada en confianza", palabra: "AMISTAD" },
+  { tema: "Empatía", pista: "Ponerse en lugar del otro", palabra: "EMPATIA" },
+  { tema: "Responsabilidad", pista: "Cumplir obligaciones", palabra: "RESPONSABILIDAD" },
 ];
 
-// === ESTADO LOCAL ===
-let salaCodigo = null;
-let jugadorId = null;
-let jugadorNombre = "";
-let esDocente = false;
-let unsubscribeSala = null;
-let unsubscribeJugadores = null;
-let ultimoEstadoSala = null;
 
-// === UTILES DOM ===
-const $ = (id) => document.getElementById(id);
-
+// =========================
+//  CAMBIO DE VISTAS
+// =========================
 function mostrarVista(id) {
-  document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
-  $(id).classList.add("active");
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
-// === EVENTOS INICIALES ===
-window.addEventListener("DOMContentLoaded", () => {
-  // Botones menú
-  $("btn-docente").onclick = () => mostrarVista("view-docente");
-  $("btn-estudiante").onclick = () => mostrarVista("view-estudiante");
+document.getElementById("btn-docente").onclick = () => mostrarVista("view-docente");
+document.getElementById("btn-estudiante").onclick = () => mostrarVista("view-estudiante");
+document.getElementById("btn-volver-docente").onclick = () => mostrarVista("view-menu");
+document.getElementById("btn-volver-estudiante").onclick = () => mostrarVista("view-menu");
 
-  $("btn-volver-docente").onclick = () => mostrarVista("view-menu");
-  $("btn-volver-estudiante").onclick = () => mostrarVista("view-menu");
 
-  $("btn-crear-sala").onclick = crearSala;
-  $("btn-iniciar-juego").onclick = iniciarJuego;
+// =========================
+//  GENERAR CÓDIGO SALA
+// =========================
+function generarCodigo() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let s = "";
+  for (let i = 0; i < 6; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
 
-  $("btn-unirse").onclick = unirseSala;
 
-  $("btn-enviar-letra").onclick = enviarLetra;
-  $("btn-salir-juego").onclick = salirJuego;
-});
+// =========================
+//  DOCENTE: CREAR SALA
+// =========================
+document.getElementById("btn-crear-sala").onclick = async () => {
+  const nombre = document.getElementById("docente-nombre").value.trim();
 
-// === LÓGICA: CREAR SALA (DOCENTE) ===
-async function crearSala() {
-  const nombreDocente = $("docente-nombre").value.trim() || "Docente";
+  if (!nombre) {
+    alert("Ingresa tu nombre.");
+    return;
+  }
 
-  // Generar código de sala sencillo (letras y números)
+  usuario = { nombre, rol: "docente" };
+
   const codigo = generarCodigo();
+  salaActual = codigo;
 
-  salaCodigo = codigo;
-  jugadorNombre = nombreDocente;
-  esDocente = true;
-
-  // Crear documento de sala en Firestore
   const salaRef = doc(db, "salas", codigo);
 
-  const salaInicial = {
+  const salaData = {
     codigo,
-    estado: "esperando", // esperando | jugando | terminado
+    docente: nombre,
+    estado: "espera",       // 👈 No se juega todavía
     ronda: 0,
-    tema: "",
-    pista: "",
+    turno: "",
     palabraActual: "",
-    progreso: "",
     letrasUsadas: [],
     fallos: 0,
-    turnoActualId: null,
-    turnoActualNombre: "",
-    ordenTurnos: [],
-    turnoIndex: 0,
-    creadoEn: serverTimestamp()
+    updatedAt: serverTimestamp()
   };
 
-  await setDoc(salaRef, salaInicial);
+  await setDoc(salaRef, salaData);
 
-  // Agregar al docente como jugador
-  const jugadoresCol = collection(salaRef, "jugadores");
-  const jugadorDoc = await addDoc(jugadoresCol, {
-    nombre: nombreDocente,
-    creadoEn: serverTimestamp()
+  // Crear docente en la lista de jugadores
+  const jugadoresRef = collection(salaRef, "jugadores");
+  const docJugador = await addDoc(jugadoresRef, {
+    nombre,
+    rol: "docente",
+    conectado: true,
+    timestamp: serverTimestamp()
   });
-  jugadorId = jugadorDoc.id;
 
-  // Mostrar info en pantalla
-  $("texto-codigo").innerText = codigo;
-  $("docente-info-sala").classList.remove("hidden");
+  usuario.jugadorId = docJugador.id;
 
-  // Ir a la vista de juego para el docente cuando inicie el juego
-  suscribirSala();
-  suscribirJugadores();
+  document.getElementById("texto-codigo").textContent = codigo;
+  document.getElementById("docente-info-sala").classList.remove("hidden");
 
-  $("juego-nombre").innerText = jugadorNombre;
-  $("juego-rol").innerText = "DOCENTE";
-  $("juego-rol").style.display = "inline-block";
-}
+  escucharJugadores();
+  escucharSala();
 
-// === LÓGICA: UNIRSE A SALA (ESTUDIANTE) ===
-async function unirseSala() {
-  const codigo = $("join-codigo").value.trim().toUpperCase();
-  const nombre = $("join-nombre").value.trim();
-  const errorEl = $("join-error");
-  errorEl.innerText = "";
+  mostrarVista("view-docente");
+};
+
+
+// =========================
+//  ESTUDIANTE: UNIRSE
+// =========================
+document.getElementById("btn-unirse").onclick = async () => {
+  const codigo = document.getElementById("join-codigo").value.trim();
+  const nombre = document.getElementById("join-nombre").value.trim();
 
   if (!codigo || !nombre) {
-    errorEl.innerText = "Completa el código y tu nombre.";
+    document.getElementById("join-error").textContent = "Completa todos los campos.";
     return;
   }
 
@@ -162,346 +147,163 @@ async function unirseSala() {
   const salaSnap = await getDoc(salaRef);
 
   if (!salaSnap.exists()) {
-    errorEl.innerText = "No existe una sala con ese código.";
+    document.getElementById("join-error").textContent = "La sala no existe.";
     return;
   }
 
-  const salaData = salaSnap.data();
-  if (salaData.estado === "terminado") {
-    errorEl.innerText = "Esta sala ya terminó.";
-    return;
-  }
+  usuario = { nombre, rol: "estudiante" };
+  salaActual = codigo;
 
-  // Registramos jugador
-  const jugadoresCol = collection(salaRef, "jugadores");
-  const jugadorDoc = await addDoc(jugadoresCol, {
+  const jugadoresRef = collection(salaRef, "jugadores");
+  const jugadorDoc = await addDoc(jugadoresRef, {
     nombre,
-    creadoEn: serverTimestamp()
+    rol: "estudiante",
+    conectado: true,
+    timestamp: serverTimestamp()
   });
 
-  salaCodigo = codigo;
-  jugadorId = jugadorDoc.id;
-  jugadorNombre = nombre;
-  esDocente = false;
+  usuario.jugadorId = jugadorDoc.id;
 
-  // Suscribirse a cambios
-  suscribirSala();
-  suscribirJugadores();
+  escucharJugadores();
+  escucharSala();
 
-  // Actualizar UI
-  $("juego-nombre").innerText = jugadorNombre;
-  $("juego-rol").innerText = "ESTUDIANTE";
-  $("juego-rol").style.display = "inline-block";
+  mostrarVista("view-estudiante");
+};
 
-  mostrarVista("view-juego");
-}
 
-// === SUSCRIPCIONES A FIRESTORE ===
-function suscribirSala() {
-  if (!salaCodigo) return;
-  const salaRef = doc(db, "salas", salaCodigo);
+// =========================
+//  LISTENER: JUGADORES
+// =========================
+function escucharJugadores() {
+  if (stopJugadoresListener) stopJugadoresListener();
 
-  if (unsubscribeSala) unsubscribeSala();
+  const jugadoresRef = collection(db, "salas", salaActual, "jugadores");
 
-  unsubscribeSala = onSnapshot(salaRef, (snap) => {
-    if (!snap.exists()) return;
-    const data = snap.data();
-    ultimoEstadoSala = data;
-    actualizarVistaJuego(data);
-  });
+  stopJugadoresListener = onSnapshot(jugadoresRef, (snap) => {
+    const listaDocente = document.getElementById("lista-jugadores");
+    const listaJuego = document.getElementById("juego-lista-jugadores");
 
-  $("juego-codigo").innerText = salaCodigo;
-}
+    listaDocente.innerHTML = "";
+    listaJuego.innerHTML = "";
 
-function suscribirJugadores() {
-  if (!salaCodigo) return;
-  const salaRef = doc(db, "salas", salaCodigo);
-  const jugadoresCol = collection(salaRef, "jugadores");
+    snap.forEach(doc => {
+      const d = doc.data();
 
-  if (unsubscribeJugadores) unsubscribeJugadores();
-
-  unsubscribeJugadores = onSnapshot(jugadoresCol, (querySnap) => {
-    const jugadores = [];
-    querySnap.forEach((doc) => {
-      jugadores.push({ id: doc.id, ...doc.data() });
+      listaDocente.innerHTML += `<li>${d.nombre} (${d.rol})</li>`;
+      listaJuego.innerHTML += `<li>${d.nombre} (${d.rol})</li>`;
     });
 
-    // Orden por hora de ingreso
-    jugadores.sort((a, b) => (a.creadoEn?.seconds || 0) - (b.creadoEn?.seconds || 0));
-
-    // Pintar lista en vista docente y juego
-    const ulDoc = $("lista-jugadores");
-    const ulJuego = $("juego-lista-jugadores");
-    ulDoc.innerHTML = "";
-    ulJuego.innerHTML = "";
-
-    jugadores.forEach((j) => {
-      const li1 = document.createElement("li");
-      li1.textContent = j.nombre;
-      ulDoc.appendChild(li1);
-
-      const li2 = document.createElement("li");
-      li2.textContent = j.nombre + (j.id === jugadorId ? " (tú)" : "");
-      ulJuego.appendChild(li2);
-    });
-
-    // Habilitar botón "Iniciar juego" si es docente y hay al menos 2 jugadores
-    if (esDocente) {
-      $("btn-iniciar-juego").disabled = jugadores.length < 2;
+    if (usuario.rol === "docente") {
+      const btn = document.getElementById("btn-iniciar-juego");
+      btn.disabled = snap.size < 2; // docente + 1 estudiante mínimo
     }
   });
 }
 
-// === INICIAR JUEGO (solo docente) ===
-async function iniciarJuego() {
-  if (!esDocente || !salaCodigo) return;
-  const salaRef = doc(db, "salas", salaCodigo);
-  const salaSnap = await getDoc(salaRef);
-  if (!salaSnap.exists()) return;
 
-  // Obtenemos lista de jugadores para el orden de turnos
-  const salaData = salaSnap.data();
+// =========================
+//  LISTENER: SALA
+// =========================
+function escucharSala() {
+  if (stopSalaListener) stopSalaListener();
 
-  // Para obtener jugadores de forma sencilla:
-  // volvemos a leer subcolección (podría optimizarse usando estado local, pero simple es mejor aquí)
-  const jugadoresCol = collection(salaRef, "jugadores");
-  const querySnap = await new Promise((resolve, reject) => {
-    const unsub = onSnapshot(
-      jugadoresCol,
-      (q) => {
-        resolve(q);
-        unsub();
-      },
-      reject
-    );
+  const salaRef = doc(db, "salas", salaActual);
+
+  stopSalaListener = onSnapshot(salaRef, (snap) => {
+    const data = snap.data();
+    if (!data) return;
+
+    // Cuando el docente inicia el juego:
+    if (data.estado === "jugando") {
+      cargarRonda(data);
+      mostrarVista("view-juego");
+    }
   });
+}
 
-  const jugadores = [];
-  querySnap.forEach((d) => jugadores.push({ id: d.id, ...d.data() }));
 
-  if (jugadores.length < 2) {
-    alert("Necesitas al menos 2 jugadores para empezar.");
-    return;
-  }
+// =========================
+// DOCENTE: INICIAR JUEGO
+// =========================
+document.getElementById("btn-iniciar-juego").onclick = () => iniciarJuego();
 
-  // Orden de turnos por hora de entrada
-  jugadores.sort((a, b) => (a.creadoEn?.seconds || 0) - (b.creadoEn?.seconds || 0));
-  const ordenIds = jugadores.map((j) => j.id);
-  const turnoIndex = 0;
-  const turnoActualId = ordenIds[0];
-  const turnoActualNombre = jugadores[0].nombre;
-
-  // Primera ronda
-  const ronda = 0;
-  const info = RONDAS[ronda];
-  const palabra = info.palabra.toUpperCase();
-  const progreso = "_".repeat(palabra.length);
+async function iniciarJuego() {
+  const salaRef = doc(db, "salas", salaActual);
 
   await updateDoc(salaRef, {
     estado: "jugando",
-    ronda,
-    tema: info.tema,
-    pista: info.pista,
-    palabraActual: palabra,
-    progreso,
+    ronda: 1,
+    palabraActual: rondas[0].palabra,
     letrasUsadas: [],
-    fallos: 0,
-    ordenTurnos: ordenIds,
-    turnoIndex,
-    turnoActualId,
-    turnoActualNombre
+    fallos: 0
   });
-
-  mostrarVista("view-juego");
 }
 
-// === ACTUALIZAR VISTA DE JUEGO CON ESTADO DE SALA ===
-function actualizarVistaJuego(data) {
-  if (!data) return;
 
-  $("juego-ronda").innerText = data.ronda + 1;
-  $("juego-tema").innerText = data.tema || "-";
-  $("juego-pista").innerText = data.pista || "-";
-  $("juego-palabra").innerText = separarLetras(data.progreso || "");
-  $("juego-letras").innerText = (data.letrasUsadas || []).join(", ");
-  $("juego-fallos").innerText = data.fallos || 0;
-  $("juego-turno-nombre").innerText = data.turnoActualNombre || "-";
+// =========================
+//  CARGAR RONDA
+// =========================
+function cargarRonda(data) {
+  const rondaIndex = data.ronda - 1;
+  const info = rondas[rondaIndex];
 
-  // Mensajes según estado
-  const msgEl = $("juego-mensaje");
-  msgEl.innerText = "";
+  document.getElementById("juego-codigo").textContent = salaActual;
+  document.getElementById("juego-nombre").textContent = usuario.nombre;
+  document.getElementById("juego-rol").textContent = usuario.rol;
 
-  if (data.estado === "esperando") {
-    msgEl.innerText = "Esperando a que el docente inicie el juego.";
-    deshabilitarInput(true);
-  } else if (data.estado === "jugando") {
-    if (jugadorId === data.turnoActualId) {
-      msgEl.innerText = "¡Es tu turno! Escribe una letra.";
-      deshabilitarInput(false);
-    } else {
-      msgEl.innerText = "Es turno de " + (data.turnoActualNombre || "");
-      deshabilitarInput(true);
-    }
-  } else if (data.estado === "terminado") {
-    msgEl.innerText = "Juego terminado. ¡Buen trabajo!";
-    deshabilitarInput(true);
-  }
+  document.getElementById("juego-ronda").textContent = data.ronda;
+  document.getElementById("juego-tema").textContent = info.tema;
+  document.getElementById("juego-pista").textContent = info.pista;
 
-  // Aseguramos que la vista de juego esté visible si ya estamos dentro de una sala
-  if (data.estado === "jugando") {
-    //mostrarVista("view-juego");
+  renderPalabra(data);
 }
 
-}
 
-function deshabilitarInput(disabled) {
-  $("input-letra").disabled = disabled;
-  $("btn-enviar-letra").disabled = disabled;
-}
-
-function separarLetras(str) {
-  return str.split("").join(" ");
-}
-
-// === ENVIAR LETRA (cuando es tu turno) ===
-async function enviarLetra() {
-  if (!salaCodigo || !ultimoEstadoSala) return;
-
-  const salaRef = doc(db, "salas", salaCodigo);
-  const data = ultimoEstadoSala;
-
-  if (data.estado !== "jugando") return;
-  if (jugadorId !== data.turnoActualId) return; // no es tu turno
-
-  let letra = $("input-letra").value.trim().toUpperCase();
-  $("input-letra").value = "";
-
-  if (!letra.match(/^[A-ZÑ]$/)) {
-    $("juego-mensaje").innerText = "Escribe una sola letra.";
-    return;
-  }
-
-  if ((data.letrasUsadas || []).includes(letra)) {
-    $("juego-mensaje").innerText = "Esa letra ya se usó.";
-    return;
-  }
-
+// =========================
+//  RENDER PALABRA
+// =========================
+function renderPalabra(data) {
   const palabra = data.palabraActual;
-  let progreso = data.progreso;
-  let letrasUsadas = [...(data.letrasUsadas || []), letra];
-  let fallos = data.fallos || 0;
+  const usadas = data.letrasUsadas;
 
-  let acierto = false;
-  let nuevoProgreso = "";
+  let visible = "";
 
-  for (let i = 0; i < palabra.length; i++) {
-    if (palabra[i] === letra) {
-      nuevoProgreso += letra;
-      acierto = true;
-    } else {
-      nuevoProgreso += progreso[i];
-    }
+  for (let l of palabra) {
+    visible += usadas.includes(l) ? l + " " : "_ ";
   }
 
-  progreso = nuevoProgreso;
-  if (!acierto) {
-    fallos += 1;
-  }
-
-  // Calcular siguiente turno
-  const ordenTurnos = data.ordenTurnos || [];
-  let turnoIndex = data.turnoIndex || 0;
-  if (ordenTurnos.length > 0) {
-    turnoIndex = (turnoIndex + 1) % ordenTurnos.length;
-  }
-  const turnoActualId = ordenTurnos[turnoIndex] || null;
-
-  // Para mostrar el nombre del nuevo turno necesitamos buscarlo
-  let turnoActualNombre = data.turnoActualNombre;
-  // Como no tenemos lista de jugadores aquí, dejamos el nombre igual
-  // (los jugadores ya saben la rotación en la práctica).
-
-  let nuevoEstado = {
-    progreso,
-    letrasUsadas,
-    fallos,
-    turnoIndex,
-    turnoActualId,
-    turnoActualNombre
-  };
-
-  // ¿Completó palabra?
-  if (progreso === palabra) {
-    // Pasar a la siguiente ronda
-    let siguienteRonda = data.ronda + 1;
-    if (siguienteRonda >= RONDAS.length) {
-      // Juego terminado
-      nuevoEstado.estado = "terminado";
-    } else {
-      const info = RONDAS[siguienteRonda];
-      const nuevaPalabra = info.palabra.toUpperCase();
-      const nuevoProgresoRonda = "_".repeat(nuevaPalabra.length);
-
-      nuevoEstado = {
-        ...nuevoEstado,
-        ronda: siguienteRonda,
-        tema: info.tema,
-        pista: info.pista,
-        palabraActual: nuevaPalabra,
-        progreso: nuevoProgresoRonda,
-        letrasUsadas: [],
-        fallos: 0,
-        estado: "jugando"
-      };
-    }
-  } else if (fallos >= MAX_FALLOS) {
-    // Si llegan al máximo de fallos, también pasamos de ronda
-    let siguienteRonda = data.ronda + 1;
-    if (siguienteRonda >= RONDAS.length) {
-      nuevoEstado.estado = "terminado";
-    } else {
-      const info = RONDAS[siguienteRonda];
-      const nuevaPalabra = info.palabra.toUpperCase();
-      const nuevoProgresoRonda = "_".repeat(nuevaPalabra.length);
-
-      nuevoEstado = {
-        ...nuevoEstado,
-        ronda: siguienteRonda,
-        tema: info.tema,
-        pista: info.pista,
-        palabraActual: nuevaPalabra,
-        progreso: nuevoProgresoRonda,
-        letrasUsadas: [],
-        fallos: 0,
-        estado: "jugando"
-      };
-    }
-  }
-
-  await updateDoc(salaRef, nuevoEstado);
+  document.getElementById("juego-palabra").textContent = visible;
+  document.getElementById("juego-letras").textContent = usadas.join(", ");
+  document.getElementById("juego-fallos").textContent = data.fallos;
 }
 
-// === SALIR DEL JUEGO ===
-function salirJuego() {
-  // No borramos la sala, solo salimos visualmente
-  if (unsubscribeSala) unsubscribeSala();
-  if (unsubscribeJugadores) unsubscribeJugadores();
 
-  salaCodigo = null;
-  jugadorId = null;
-  jugadorNombre = "";
-  esDocente = false;
-  ultimoEstadoSala = null;
+// =========================
+//  ENVIAR LETRA
+// =========================
+document.getElementById("btn-enviar-letra").onclick = enviarLetra;
 
-  mostrarVista("view-menu");
+async function enviarLetra() {
+  const input = document.getElementById("input-letra");
+  let letra = input.value.toUpperCase();
+  input.value = "";
+
+  if (!letra.match(/[A-Z]/)) return;
+
+  const salaRef = doc(db, "salas", salaActual);
+  const snap = await getDoc(salaRef);
+  const data = snap.data();
+
+  if (data.letrasUsadas.includes(letra)) return;
+
+  let nuevas = [...data.letrasUsadas, letra];
+  let fallos = data.fallos;
+
+  if (!data.palabraActual.includes(letra)) fallos++;
+
+  await updateDoc(salaRef, {
+    letrasUsadas: nuevas,
+    fallos
+  });
 }
 
-// === UTIL: generar código de sala ===
-function generarCodigo() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = "";
-  for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return code;
-}
