@@ -220,6 +220,32 @@ input[type="text"]:focus {
   display: none;
 }
 
+/* Utilidades para nuevas vistas */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.help {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 6px;
+}
+
+/* Estilo para selects */
+select {
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 2px solid #aacdf8;
+  font-size: 1rem;
+  background: #fff;
+}
+select:focus {
+  border-color: #4da3ff;
+  outline: none;
+}
+
+
 /* RESPONSIVE */
 @media (min-width: 640px) {
   .app {

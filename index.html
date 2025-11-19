@@ -113,6 +113,111 @@
     </section>
   </main>
 
+  <!-- Vista LOGIN DOCENTE -->
+<section id="view-login-docente" class="view">
+  <h2>Iniciar sesión (Docente)</h2>
+  <div class="card">
+    <label class="field">
+      <span>Usuario (Docente):</span>
+      <input id="doc-login-usuario" type="text" placeholder="Ej. ProfeLuis" />
+    </label>
+    <label class="field">
+      <span>Contraseña:</span>
+      <input id="doc-login-pass" type="password" placeholder="••••••" />
+    </label>
+
+    <button id="btn-doc-login-ingresar" class="btn primary">Ingresar</button>
+    <button id="btn-doc-login-registrarse" class="btn">Registrarse</button>
+    <button id="btn-doc-login-volver" class="btn link">Volver</button>
+  </div>
+</section>
+
+<!-- Vista REGISTRO DOCENTE (maquetación) -->
+<section id="view-registro-docente" class="view">
+  <h2>Registro de Docente</h2>
+  <div class="card">
+    <label class="field">
+      <span>Nombre:</span>
+      <input id="doc-reg-nombre" type="text" placeholder="Ej. Luis" />
+    </label>
+    <label class="field">
+      <span>Apellido:</span>
+      <input id="doc-reg-apellido" type="text" placeholder="Ej. Aguilar" />
+    </label>
+    <label class="field">
+      <span>Usuario:</span>
+      <input id="doc-reg-usuario" type="text" placeholder="Ej. ProfeLuis" />
+    </label>
+    <label class="field">
+      <span>Contraseña:</span>
+      <input id="doc-reg-pass" type="password" placeholder="••••••" />
+    </label>
+    <label class="field">
+      <span>Repetir contraseña:</span>
+      <input id="doc-reg-pass2" type="password" placeholder="••••••" />
+    </label>
+
+    <button id="btn-doc-reg-crear" class="btn success">Registrar</button>
+    <button id="btn-doc-reg-volver" class="btn link">Volver</button>
+  </div>
+</section>
+
+<!-- Vista REGISTRO OK -->
+<section id="view-registro-ok" class="view">
+  <h2>Registro completado</h2>
+  <div class="card">
+    <p>Tu cuenta de docente ha sido creada (maquetación).</p>
+    <button id="btn-ir-a-login" class="btn primary">Ingresar</button>
+  </div>
+</section>
+
+<!-- Vista SELECCIONAR JUEGO -->
+<section id="view-seleccionar-juego" class="view">
+  <h2>Seleccionar juego</h2>
+  <div class="card">
+    <label class="field">
+      <span>Juego:</span>
+      <select id="select-juego">
+        <option value="ahorcado" selected>Ahorcado</option>
+        <!-- Futuro: agregar más juegos aquí -->
+      </select>
+    </label>
+
+    <p class="help">Por ahora solo Ahorcado (con tu Pack Perú – Personal Social).</p>
+
+    <button id="btn-ir-crear-sala" class="btn primary">Siguiente</button>
+    <button id="btn-seljuego-volver" class="btn link">Volver</button>
+  </div>
+</section>
+
+<!-- Vista CREAR SALA (flujo docente, previo a tu vista original) -->
+<section id="view-crear-sala" class="view">
+  <h2>Crear sala</h2>
+  <div class="card">
+    <div class="grid-2">
+      <label class="field">
+        <span>Cantidad de grupos</span>
+        <input id="cfg-grupos" type="number" min="1" max="10" value="1" />
+      </label>
+      <label class="field">
+        <span>Integrantes por grupo</span>
+        <input id="cfg-integrantes" type="number" min="2" max="8" value="2" />
+      </label>
+    </div>
+
+    <p class="help">En esta etapa solo crearemos 1 sala (tu lógica actual). Los campos son maquetación para los bosetos.</p>
+
+    <label class="field">
+      <span>Tu nombre (docente):</span>
+      <input id="docente-nombre-alt" type="text" placeholder="Ej. Profe Luis" />
+    </label>
+
+    <button id="btn-crear-sala-flow" class="btn success">Crear sala</button>
+    <button id="btn-crear-sala-volver" class="btn link">Volver</button>
+  </div>
+</section>
+
+
   <!-- Nuestro JS con Firebase y lógica del juego -->
   <script type="module" src="app.js"></script>
 </body>

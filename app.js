@@ -121,21 +121,59 @@ function mostrarVista(id) {
 // EVENTOS INIT
 // ---------------------------
 window.addEventListener("DOMContentLoaded", () => {
-  $("btn-docente").onclick = () => mostrarVista("view-docente");
+  // EXISTENTES (no los borres)
   $("btn-estudiante").onclick = () => mostrarVista("view-estudiante");
   $("btn-volver-docente").onclick = () => mostrarVista("view-menu");
   $("btn-volver-estudiante").onclick = () => mostrarVista("view-menu");
+  $("btn-crear-sala").onclick = crearSala;         // ya existente (en view-docente)
+  $("btn-iniciar-juego").onclick = iniciarJuego;   // ya existente
+  $("btn-unirse").onclick = unirseSala;            // ya existente
+  $("btn-enviar-letra").onclick = enviarLetra;     // ya existente
+  $("btn-salir-juego").onclick = salirJuego;       // ya existente
 
-  $("btn-crear-sala").onclick = crearSala;
-  $("btn-iniciar-juego").onclick = iniciarJuego;
-  $("btn-unirse").onclick = unirseSala;
+  // ACTUALIZA "Soy docente" para ir al login
+  $("btn-docente").onclick = () => mostrarVista("view-login-docente");
 
-  $("btn-enviar-letra").onclick = enviarLetra;
-  $("btn-salir-juego").onclick = salirJuego;
+  // LOGIN DOCENTE
+  $("btn-doc-login-volver").onclick = () => mostrarVista("view-menu");
+  $("btn-doc-login-registrarse").onclick = () => mostrarVista("view-registro-docente");
+  $("btn-doc-login-ingresar").onclick = () => {
+    // Solo navegación: si puso usuario, lo prellenamos como nombre del docente
+    const u = $("doc-login-usuario").value.trim();
+    if (u) {
+      // Prellenar en ambas vistas por si usa una u otra
+      const nameField1 = $("docente-nombre");      // input de tu view-docente original
+      const nameField2 = $("docente-nombre-alt");  // input en la vista "crear sala"
+      if (nameField1) nameField1.value = u;
+      if (nameField2) nameField2.value = u;
+    }
+    mostrarVista("view-seleccionar-juego");
+  };
 
-  // Crear contenedor SVG si no existe (para el dibujo)
-  ensureAhorcadoSVG();
+  // REGISTRO DOCENTE (maquetación)
+  $("btn-doc-reg-volver").onclick = () => mostrarVista("view-login-docente");
+  $("btn-doc-reg-crear").onclick = () => mostrarVista("view-registro-ok");
+  $("btn-ir-a-login").onclick = () => mostrarVista("view-login-docente");
+
+  // SELECCIONAR JUEGO
+  $("btn-seljuego-volver").onclick = () => mostrarVista("view-login-docente");
+  $("btn-ir-crear-sala").onclick = () => {
+    // (en futuro, leeremos el juego seleccionado; ahora solo Ahorcado)
+    mostrarVista("view-crear-sala");
+  };
+
+  // CREAR SALA (flujo con tus bosetos, pero usando tu crearSala real)
+  $("btn-crear-sala-volver").onclick = () => mostrarVista("view-seleccionar-juego");
+  $("btn-crear-sala-flow").onclick = () => {
+    // Si escribió su nombre aquí, lo copiamos al campo original
+    const altName = $("docente-nombre-alt")?.value?.trim();
+    if (altName && $("docente-nombre")) $("docente-nombre").value = altName;
+
+    // Llamamos a tu función existente (crea sala, muestra código y navega a view-docente)
+    crearSala();
+  };
 });
+
 
 // ---------------------------
 // SVG: Crear contenedor y elementos (cartoon)
