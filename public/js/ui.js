@@ -2,15 +2,6 @@
 // ------------------------------------------------------
 // Capa de UI: maneja DOM, vistas y eventos de la app.
 // ------------------------------------------------------
-// - Navegación de vistas (menú, docente, estudiante, juego, resultados)
-// - Autenticación docente (registro / login / logout)
-// - Creación y gestión de actividades (docente)
-// - Unión de estudiantes a grupos y vista del juego
-// - Pintado de puntajes, tiempos, rondas y SVG del ahorcado
-//
-// Este módulo importa la lógica de datos (firebase.js),
-// la lógica de juego (game.js), los packs (rounds.js) y el SVG (svg.js).
-// ------------------------------------------------------
 
 import {
   auth,
@@ -30,9 +21,7 @@ import {
   updateActividadEstado,
 } from "./firebase.js";
 
-import {
-  PACK_PERU_PERSONAL_SOCIAL,
-} from "./rounds.js";
+import { PACK_PERU_PERSONAL_SOCIAL } from "./rounds.js";
 
 import {
   MAX_FALLOS,
@@ -134,14 +123,12 @@ export function initApp() {
 // ------------------------------------------------------
 function handleAuthStateChanged(user) {
   if (user) {
-    // Docente autenticado
     const nombre =
       user.displayName ||
       (user.email ? user.email.split("@")[0] : "Docente");
 
     setText("docente-dashboard-nombre", nombre);
 
-    // Escuchar sus actividades
     if (uiState.unsubscribeActividadesDocente) {
       uiState.unsubscribeActividadesDocente();
     }
@@ -150,7 +137,6 @@ function handleAuthStateChanged(user) {
       renderListaActividadesDocente
     );
   } else {
-    // Cerrar subscripciones del docente
     if (uiState.unsubscribeActividadesDocente) {
       uiState.unsubscribeActividadesDocente();
       uiState.unsubscribeActividadesDocente = null;
@@ -162,8 +148,6 @@ function handleAuthStateChanged(user) {
     uiState.actividadActualId = null;
     uiState.actividadActualData = null;
     uiState.gruposActividad = [];
-    // No forzamos vista aquí para no interrumpir a estudiantes,
-    // pero cuando el docente pulse "soy docente" lo mandaremos al login.
   }
 }
 
@@ -176,7 +160,6 @@ function bindMenuEvents() {
 
   if (btnEstudiante) {
     btnEstudiante.onclick = () => {
-      // Flujo estudiante
       setInputValue("estudiante-codigo-grupo", "");
       setInputValue("estudiante-nombre", "");
       setText("estudiante-join-error", "");
@@ -186,7 +169,6 @@ function bindMenuEvents() {
 
   if (btnDocente) {
     btnDocente.onclick = () => {
-      // Si ya está logueado, ir al dashboard
       if (auth.currentUser) {
         showView("view-docente-dashboard");
       } else {
@@ -221,7 +203,6 @@ function bindDocenteLoginEvents() {
 
       try {
         await loginDocente({ email, password });
-        // onAuthChange se ocupará de actualizar dashboard
         showView("view-docente-dashboard");
       } catch (err) {
         console.error(err);
@@ -237,7 +218,6 @@ function bindDocenteLoginEvents() {
 
   if (btnIrRegistro) {
     btnIrRegistro.onclick = () => {
-      // Limpiamos campos
       setInputValue("docente-reg-nombres", "");
       setInputValue("docente-reg-apellidos", "");
       setInputValue("docente-reg-email", "");
@@ -296,7 +276,6 @@ function bindDocenteRegistroEvents() {
           email,
           password: pass1,
         });
-        // Ya queda logueado; onAuthChange lo enviará al dashboard
         showView("view-docente-dashboard");
       } catch (err) {
         console.error(err);
@@ -331,7 +310,6 @@ function bindDocenteDashboardEvents() {
         showView("view-docente-login");
         return;
       }
-      // Valores por defecto del formulario de nueva actividad
       setInputValue(
         "actividad-nombre",
         "Personal Social - Actividad sobre Perú"
@@ -366,7 +344,6 @@ function bindDocenteDashboardEvents() {
 
 /**
  * Renderiza la lista de actividades del docente en el dashboard.
- * items: [{id, nombre, estado, creadoEn, ...}, ...]
  */
 function renderListaActividadesDocente(items) {
   const ul = $("docente-actividades-lista");
@@ -398,9 +375,7 @@ function renderListaActividadesDocente(items) {
         <span class="actividad-estado pill pill-${estado}">${estado}</span>
       </div>
       <div class="actividad-meta">
-        <span>${act.numGrupos || 0} grupos · ${
-      act.numRondas || 0
-    } rondas</span>
+        <span>${act.numGrupos || 0} grupos · ${act.numRondas || 0} rondas</span>
         <span class="actividad-fecha">${fecha}</span>
       </div>
     `;
@@ -414,103 +389,6 @@ function renderListaActividadesDocente(items) {
 }
 
 // ------------------------------------------------------
-// CREACIÓN DE ACTIVIDAD
-// ------------------------------------------------------
-function bindActividadEvents() {
-  const btnCrear = $("btn-actividad-crear");
-  const btnCancelar = $("btn-actividad-crear-cancelar");
-
-  if (btnCrear) {
-    btnCrear.onclick = async () => {
-      if (!auth.currentUser) {
-        showView("view-docente-login");
-        return;
-      }
-
-      const docenteUid = auth.currentUser.uid;
-      const nombreActividad = $("actividad-nombre")?.value.trim();
-      const packId = $("actividad-pack")?.value || PACK_PERU_PERSONAL_SOCIAL;
-      const numGrupos = parseInt(
-        $("actividad-num-grupos")?.value || "1",
-        10
-      );
-      const maxIntegrantes = parseInt(
-        $("actividad-max-integrantes")?.value || "4",
-        10
-      );
-      const tiempoRondaSeg = parseInt(
-        $("actividad-tiempo-ronda")?.value || "90",
-        10
-      );
-      const numRondas = parseInt(
-        $("actividad-num-rondas")?.value || "5",
-        10
-      );
-      const errorEl = $("actividad-crear-error");
-
-      if (errorEl) errorEl.innerText = "";
-
-      if (!nombreActividad) {
-        if (errorEl) errorEl.innerText = "Ponle un nombre a la actividad.";
-        return;
-      }
-      if (numGrupos < 1 || numGrupos > 10) {
-        if (errorEl)
-          errorEl.innerText = "La cantidad de grupos debe ser entre 1 y 10.";
-        return;
-      }
-      if (maxIntegrantes < 2 || maxIntegrantes > 8) {
-        if (errorEl)
-          errorEl.innerText = "Integrantes por grupo: entre 2 y 8.";
-        return;
-      }
-      if (tiempoRondaSeg < 20 || tiempoRondaSeg > 300) {
-        if (errorEl)
-          errorEl.innerText =
-            "Tiempo por ronda entre 20 y 300 segundos.";
-        return;
-      }
-      if (numRondas < 3 || numRondas > 10) {
-        if (errorEl)
-          errorEl.innerText = "Número de rondas entre 3 y 10.";
-        return;
-      }
-
-      setDisabled("btn-actividad-crear", true);
-
-      try {
-        const { actividadId } = await createActividadWithGrupos({
-          docenteUid,
-          nombreActividad,
-          packId,
-          numGrupos,
-          maxIntegrantes,
-          tiempoRondaSeg,
-          numRondas,
-        });
-
-        // Abrimos directamente el detalle de la nueva actividad
-        await abrirDetalleActividad(actividadId);
-      } catch (err) {
-        console.error(err);
-        if (errorEl) {
-          errorEl.innerText =
-            "No se pudo crear la actividad. Intenta nuevamente.";
-        }
-      } finally {
-        setDisabled("btn-actividad-crear", false);
-      }
-    };
-  }
-
-  if (btnCancelar) {
-    btnCancelar.onclick = () => {
-      showView("view-docente-dashboard");
-    };
-  }
-}
-
-// ------------------------------------------------------
 // DETALLE DE ACTIVIDAD (DOCENTE)
 // ------------------------------------------------------
 async function abrirDetalleActividad(actividadId) {
@@ -518,13 +396,11 @@ async function abrirDetalleActividad(actividadId) {
 
   uiState.actividadActualId = actividadId;
 
-  // Limpiar subscripciones previas de grupos
   if (uiState.unsubscribeGruposActividadDocente) {
     uiState.unsubscribeGruposActividadDocente();
     uiState.unsubscribeGruposActividadDocente = null;
   }
 
-  // Cargar datos básicos de la actividad (una sola vez)
   const actividad = await getActividad(actividadId);
   uiState.actividadActualData = actividad || null;
 
@@ -535,7 +411,6 @@ async function abrirDetalleActividad(actividadId) {
   setText("actividad-detalle-codigo", codigoGen);
   setText("actividad-detalle-mensaje", "");
 
-  // Escuchar grupos de esta actividad
   uiState.unsubscribeGruposActividadDocente = listenGruposDeActividad(
     actividadId,
     (grupos) => {
@@ -544,7 +419,6 @@ async function abrirDetalleActividad(actividadId) {
     }
   );
 
-  // Botón "Ver resultados" habilitado si hay algún grupo finalizado
   setDisabled("btn-actividad-ver-resultados", true);
 
   showView("view-docente-actividad");
@@ -607,7 +481,6 @@ function renderGruposActividadDocente(grupos) {
     ul.appendChild(li);
   });
 
-  // Eventos de los botones dentro de la lista
   ul.querySelectorAll(".btn-copiar-codigo").forEach((btn) => {
     btn.addEventListener("click", (ev) => {
       ev.stopPropagation();
@@ -635,7 +508,6 @@ async function handleIniciarJuegoGrupo(codigoGrupo) {
   if (!codigoGrupo || !uiState.actividadActualData) return;
 
   const actividad = uiState.actividadActualData;
-
   const packId = actividad.packId || PACK_PERU_PERSONAL_SOCIAL;
   const numRondas = actividad.numRondas || 5;
   const tiempoRondaSeg = actividad.tiempoRondaSeg || 90;
@@ -660,14 +532,8 @@ async function handleIniciarJuegoGrupo(codigoGrupo) {
   }
 }
 
-// Eventos específicos de la vista de actividad (botones inferiores)
-function bindActividadEventsExtra() {
-  // Ya integrados en bindDocenteDashboardEvents y bindResultadosEvents,
-  // pero por claridad dejamos esta función si hubiese más lógica.
-}
-
 // ------------------------------------------------------
-// BOTONES INFERIORES DE ACTIVIDAD (ver resultados / finalizar)
+// CREACIÓN / BOTONES DE ACTIVIDAD  (UNA SOLA FUNCIÓN)
 // ------------------------------------------------------
 function bindActividadEvents() {
   const btnCrear = $("btn-actividad-crear");
@@ -676,9 +542,7 @@ function bindActividadEvents() {
   const btnVerResultados = $("btn-actividad-ver-resultados");
   const btnFinalizar = $("btn-actividad-finalizar");
 
-  // (La lógica de creación ya está arriba, la volvemos a enganchar aquí.)
-  if (btnCrear && !btnCrear._yaLigado) {
-    btnCrear._yaLigado = true;
+  if (btnCrear) {
     btnCrear.onclick = async () => {
       if (!auth.currentUser) {
         showView("view-docente-login");
@@ -834,7 +698,6 @@ function bindEstudianteEvents() {
           return;
         }
 
-        // Control de aforo
         const jugadoresExistentes = await getJugadoresDeGrupo(codigo);
         const maxInt = grupo.maxIntegrantes || 4;
         if (jugadoresExistentes.length >= maxInt) {
@@ -844,7 +707,6 @@ function bindEstudianteEvents() {
           return;
         }
 
-        // Registrar jugador
         const { jugadorId } = await agregarJugadorAGrupo(codigo, nombre);
 
         uiState.grupoCodigoActual = codigo;
@@ -857,11 +719,9 @@ function bindEstudianteEvents() {
           jugadorNombre: nombre,
         });
 
-        // Suscripciones: grupo (via listenGruposDeActividad) + jugadores
         suscribirGrupoComoEstudiante(grupo.actividadId, codigo);
         suscribirJugadoresGrupo(codigo);
 
-        // UI inicial
         setText("juego-nombre", nombre);
         setText("juego-grupo-nombre", grupo.nombreGrupo || "Grupo");
         setText("juego-grupo-codigo", grupo.codigoGrupo || codigo);
@@ -891,7 +751,6 @@ function bindEstudianteEvents() {
 }
 
 function suscribirGrupoComoEstudiante(actividadId, codigoGrupo) {
-  // Cerramos subscripciones previas
   if (uiState.unsubscribeGruposActividadEstudiante) {
     uiState.unsubscribeGruposActividadEstudiante();
     uiState.unsubscribeGruposActividadEstudiante = null;
@@ -905,9 +764,7 @@ function suscribirGrupoComoEstudiante(actividadId, codigoGrupo) {
       const grupo = grupos.find((g) => g.codigoGrupo === codigoGrupo);
       if (!grupo) return;
 
-      // Actualizamos estado en game.js
       actualizarEstadoGrupo(grupo);
-      // Actualizamos UI
       renderEstadoGrupoEnJuego(grupo);
     }
   );
@@ -974,13 +831,11 @@ function bindJuegoEvents() {
 }
 
 function salirDeJuego() {
-  // Cancelar timers
   if (uiState.timerIntervalId) {
     clearInterval(uiState.timerIntervalId);
     uiState.timerIntervalId = null;
   }
 
-  // Cancelar subscripciones
   if (uiState.unsubscribeGruposActividadEstudiante) {
     uiState.unsubscribeGruposActividadEstudiante();
     uiState.unsubscribeGruposActividadEstudiante = null;
@@ -1025,13 +880,9 @@ function renderEstadoGrupoEnJuego(grupo) {
   setText("juego-turno-nombre", turnoNombre);
   setText("juego-puntaje-grupo", `${puntajeGrupo}`);
 
-  // Dibujo SVG según fallos
   actualizarAhorcado(fallos, MAX_FALLOS);
-
-  // Tiempo restante
   iniciarOActualizarTimer(grupo);
 
-  // Habilitar o deshabilitar input según turno
   const esMiTurno =
     grupo.turnoActualId && grupo.turnoActualId === uiState.jugadorActual.id;
   const enJuego = grupo.estado === "jugando";
@@ -1068,8 +919,7 @@ function renderJugadoresEnJuego(jugadores) {
     const li = document.createElement("li");
     li.className = "jugador-item";
 
-    const puntaje =
-      typeof j.puntaje === "number" ? j.puntaje : 0;
+    const puntaje = typeof j.puntaje === "number" ? j.puntaje : 0;
 
     if (j.id === uiState.jugadorActual.id) {
       miPuntaje = puntaje;
@@ -1133,9 +983,6 @@ function bindResultadosEvents() {
   }
 }
 
-/**
- * Construye la vista de resultados de la actividad actual.
- */
 async function cargarResultadosActividad(actividadId) {
   if (!actividadId) return;
 
@@ -1160,7 +1007,6 @@ async function cargarResultadosActividad(actividadId) {
     return;
   }
 
-  // Para cada grupo, obtener sus jugadores
   const gruposConJugadores = await Promise.all(
     grupos.map(async (g) => {
       const jugadores = await getJugadoresDeGrupo(g.codigoGrupo);
@@ -1171,14 +1017,12 @@ async function cargarResultadosActividad(actividadId) {
     })
   );
 
-  // Ordenar por puntajeTotal descendente
   gruposConJugadores.sort((a, b) => {
     const pa = typeof a.puntajeTotal === "number" ? a.puntajeTotal : 0;
     const pb = typeof b.puntajeTotal === "number" ? b.puntajeTotal : 0;
     return pb - pa;
   });
 
-  // Ranking
   if (rankingOl) {
     gruposConJugadores.forEach((g, idx) => {
       const li = document.createElement("li");
@@ -1192,7 +1036,6 @@ async function cargarResultadosActividad(actividadId) {
     });
   }
 
-  // Detalle por grupo
   if (detalleDiv) {
     gruposConJugadores.forEach((g) => {
       const puntaje = typeof g.puntajeTotal === "number" ? g.puntajeTotal : 0;
