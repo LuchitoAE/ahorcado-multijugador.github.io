@@ -32,26 +32,80 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ---------------------------
-// CONSTANTES / ESTADO
-// ---------------------------
-const PARTES_MAX = 10; // 4 del soporte + 6 del cuerpo
-const RONDAS = [
-  { tema: "Valor", pista: "Es importante para convivir con los demás.", palabra: "RESPETO" },
-  { tema: "Valor", pista: "Ser sincero y decir la verdad.", palabra: "HONESTIDAD" },
-  { tema: "Valor", pista: "Cumplir con tus tareas y compromisos.", palabra: "RESPONSABILIDAD" },
-  { tema: "Valor", pista: "Ayudar a los demás sin esperar nada a cambio.", palabra: "SOLIDARIDAD" },
-  { tema: "Valor", pista: "Ponerse en el lugar del otro.", palabra: "EMPATIA" }
+// Número de rondas por partida
+const NUM_RONDAS = 5;
+
+// Banco de contenido: Personal Social (Perú)
+const BANCO_PERU = [
+  // Símbolos y cívica
+  { tema: "Símbolos", pista: "Rojo y blanco, símbolo del país.", palabra: "BANDERA" },
+  { tema: "Símbolos", pista: "Tiene vicuña, quina y cornucopia.", palabra: "ESCUDO" },
+  { tema: "Símbolos", pista: "Lo cantamos en actos cívicos.", palabra: "HIMNO" },
+  { tema: "Cívica",   pista: "Nuestro país en Sudamérica.", palabra: "PERU" },
+  { tema: "Cívica",   pista: "Se celebra el 28 de julio.", palabra: "INDEPENDENCIA" },
+
+  // Regiones y geografía
+  { tema: "Regiones",   pista: "Zona pegada al mar.", palabra: "COSTA" },
+  { tema: "Regiones",   pista: "Zona de montañas altas.", palabra: "SIERRA" },
+  { tema: "Regiones",   pista: "Zona de bosques y ríos.", palabra: "SELVA" },
+  { tema: "Geografía",  pista: "Grandes montañas del Perú.", palabra: "ANDES" },
+  { tema: "Geografía",  pista: "Océano al oeste del Perú.", palabra: "PACIFICO" },
+  { tema: "Ríos",       pista: "Nace en Perú y cruza Sudamérica.", palabra: "AMAZONAS" },
+  { tema: "Lagos",      pista: "Lago alto compartido con Bolivia.", palabra: "TITICACA" },
+  { tema: "Geografía",  pista: "Famoso cañón en Arequipa.", palabra: "COLCA" },
+
+  // Ciudades y regiones
+  { tema: "Capitales",  pista: "Capital del Perú.", palabra: "LIMA" },
+  { tema: "Ciudades",   pista: "Ciudad inca y turística.", palabra: "CUSCO" },
+  { tema: "Ciudades",   pista: "Ciudad blanca del Misti.", palabra: "AREQUIPA" },
+  { tema: "Ciudades",   pista: "Región cálida al norte.", palabra: "PIURA" },
+  { tema: "Ciudades",   pista: "Región de uvas y dunas.", palabra: "ICA" },
+  { tema: "Ciudades",   pista: "Región del lago Titicaca.", palabra: "PUNO" },
+
+  // Patrimonio
+  { tema: "Patrimonio", pista: "Ciudadela inca en la montaña.", palabra: "MACHUPICCHU" },
+  { tema: "Patrimonio", pista: "Líneas misteriosas del desierto.", palabra: "NAZCA" },
+  { tema: "Patrimonio", pista: "Ciudad de barro chimú.", palabra: "CHANCHAN" },
+  { tema: "Patrimonio", pista: "Ciudad muy antigua de América.", palabra: "CARAL" },
+  { tema: "Patrimonio", pista: "Fortaleza de los chachapoyas.", palabra: "KUELAP" },
+
+  // Danzas
+  { tema: "Danzas",     pista: "Baile elegante del norte.", palabra: "MARINERA" },
+  { tema: "Danzas",     pista: "Baile andino tradicional.", palabra: "HUAYNO" },
+  { tema: "Danzas",     pista: "Baile afroperuano alegre.", palabra: "FESTEJO" },
+
+  // Gastronomía
+  { tema: "Gastronomía", pista: "Plato de pescado con limón.", palabra: "CEVICHE" },
+  { tema: "Gastronomía", pista: "Cocción bajo tierra con piedras.", palabra: "PACHAMANCA" },
+
+  // Lenguas y pueblos
+  { tema: "Lenguas",     pista: "Lengua andina del Tahuantinsuyo.", palabra: "QUECHUA" },
+  { tema: "Lenguas",     pista: "Lengua del altiplano.", palabra: "AIMARA" },
+
+  // Animales emblemáticos
+  { tema: "Animales",    pista: "Ave de los Andes, vuela alto.", palabra: "CONDOR" },
+  { tema: "Animales",    pista: "Camélido de lana fina.", palabra: "ALPACA" },
+  { tema: "Animales",    pista: "Camélido que carga y escupe.", palabra: "LLAMA" },
+  { tema: "Animales",    pista: "Animal nacional con Ñ.", palabra: "VICUÑA" },
+
+  // Valores (refuerzo)
+  { tema: "Valores",     pista: "Tratar bien a los demás.", palabra: "RESPETO" },
+  { tema: "Valores",     pista: "Decir la verdad.", palabra: "HONESTIDAD" },
+  { tema: "Valores",     pista: "Cumplir tareas y compromisos.", palabra: "RESPONSABILIDAD" },
+  { tema: "Valores",     pista: "Ayudar a otros.", palabra: "SOLIDARIDAD" },
+  { tema: "Valores",     pista: "Ponerse en el lugar del otro.", palabra: "EMPATIA" }
 ];
 
-let salaCodigo = null;
-let jugadorId = null;
-let jugadorNombre = "";
-let esDocente = false;
-let unsubscribeSala = null;
-let unsubscribeJugadores = null;
-let ultimoEstadoSala = null;
-let jugadoresCache = {}; // {id: {nombre, rol}}
+// Mezclar y tomar N rondas del banco
+function sampleRondas(banco, n) {
+  const arr = [...banco];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, n);
+}
+
 
 // ---------------------------
 // UTILS DOM
@@ -391,27 +445,32 @@ async function iniciarJuego() {
   const nombresMap = {};
   jugadores.forEach(j => nombresMap[j.id] = j.nombre);
 
-  const ronda = 0;
-  const info = RONDAS[ronda];
-  const palabra = info.palabra.toUpperCase();
-  const progreso = "_".repeat(palabra.length);
+  // ...
+const ronda = 0;
+const rondasSesion = sampleRondas(BANCO_PERU, NUM_RONDAS);
+const info = rondasSesion[ronda];
+const palabra = info.palabra.toUpperCase();
+const progreso = "_".repeat(palabra.length);
 
-  await updateDoc(salaRef, {
-    estado: "jugando",
-    juegoIniciado: true,
-    ronda: ronda,
-    tema: info.tema,
-    pista: info.pista,
-    palabraActual: palabra,
-    progreso,
-    letrasUsadas: [],
-    fallos: 0,
-    ordenTurnos: ordenIds,
-    turnoIndex: 0,
-    turnoActualId: ordenIds[0],
-    turnoActualNombre: nombresMap[ordenIds[0]] || "",
-    playerNames: nombresMap
-  });
+await updateDoc(salaRef, {
+  estado: "jugando",
+  juegoIniciado: true,
+  ronda: ronda,
+  tema: info.tema,
+  pista: info.pista,
+  palabraActual: palabra,
+  progreso,
+  letrasUsadas: [],
+  fallos: 0,
+  ordenTurnos: ordenIds,
+  turnoIndex: 0,
+  turnoActualId: ordenIds[0],
+  turnoActualNombre: nombresMap[ordenIds[0]] || "",
+  playerNames: nombresMap,
+  // NUEVO: persistimos la selección de rondas de esta sala
+  rondas: rondasSesion
+});
+
 
   // Mostrar vista juego localmente
   mostrarVista("view-juego");
@@ -543,33 +602,39 @@ async function enviarLetra() {
 
   // ¿Se completó la palabra?
   if (progreso === palabra) {
-    // Siguiente ronda o terminar
-    let siguienteRonda = (data.ronda || 0) + 1;
-    if (siguienteRonda >= RONDAS.length) {
-      nuevoEstado.estado = "terminado";
-      nuevoEstado.juegoIniciado = false;
-    } else {
-      const info = RONDAS[siguienteRonda];
-      const nuevaPalabra = info.palabra.toUpperCase();
-      const nuevoProgresoRonda = "_".repeat(nuevaPalabra.length);
+  // Siguiente ronda o terminar (usando la selección persistida)
+  const rondasSesion = Array.isArray(data.rondas) && data.rondas.length
+    ? data.rondas
+    : sampleRondas(BANCO_PERU, NUM_RONDAS); // fallback por si faltara
 
-      nuevoEstado = {
-        ...nuevoEstado,
-        ronda: siguienteRonda,
-        tema: info.tema,
-        pista: info.pista,
-        palabraActual: nuevaPalabra,
-        progreso: nuevoProgresoRonda,
-        letrasUsadas: [],
-        fallos: 0,
-        estado: "jugando",
-      };
-    }
-  } else if (fallos >= PARTES_MAX) {
-    // Perdieron
+  let siguienteRonda = (data.ronda || 0) + 1;
+
+  if (siguienteRonda >= rondasSesion.length) {
     nuevoEstado.estado = "terminado";
     nuevoEstado.juegoIniciado = false;
+  } else {
+    const info = rondasSesion[siguienteRonda];
+    const nuevaPalabra = info.palabra.toUpperCase();
+    const nuevoProgresoRonda = "_".repeat(nuevaPalabra.length);
+
+    nuevoEstado = {
+      ...nuevoEstado,
+      ronda: siguienteRonda,
+      tema: info.tema,
+      pista: info.pista,
+      palabraActual: nuevaPalabra,
+      progreso: nuevoProgresoRonda,
+      letrasUsadas: [],
+      fallos: 0,
+      estado: "jugando",
+    };
   }
+} else if (fallos >= PARTES_MAX) {
+  // Perdieron
+  nuevoEstado.estado = "terminado";
+  nuevoEstado.juegoIniciado = false;
+}
+
 
   await updateDoc(salaRef, nuevoEstado);
 }
