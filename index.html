@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <title>Ahorcado Multijugador – Personal Social Perú</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="public/css/style.css" />
 </head>
 <body>
   <main class="app">
 
     <!-- =========================
-         VISTA MENU PRINCIPAL
+         VISTA: MENÚ PRINCIPAL
     ========================== -->
     <section id="view-menu" class="view active">
       <div class="card main-menu">
@@ -18,10 +19,10 @@
         <p class="subtitle">Personal Social – Perú</p>
 
         <div class="menu-buttons">
-          <button id="btn-estudiante" class="btn primary">
+          <button id="btn-menu-estudiante" class="btn primary">
             Soy estudiante
           </button>
-          <button id="btn-docente" class="btn secondary">
+          <button id="btn-menu-docente" class="btn secondary">
             Soy docente
           </button>
         </div>
@@ -29,309 +30,370 @@
     </section>
 
     <!-- =========================
-         VISTA ESTUDIANTE
+         VISTA: LOGIN DOCENTE
     ========================== -->
-    <section id="view-estudiante" class="view">
-      <div class="card">
-        <h2>Unirse a una sala</h2>
-
-        <label class="field">
-          <span>Código de sala</span>
-          <input
-            id="join-codigo"
-            type="text"
-            maxlength="6"
-            placeholder="Ej. ABC123"
-          />
-        </label>
-
-        <label class="field">
-          <span>Tu nombre</span>
-          <input
-            id="join-nombre"
-            type="text"
-            placeholder="Ej. Camila"
-          />
-        </label>
-
-        <p id="join-error" class="error"></p>
-
-        <div class="buttons-row">
-          <button id="btn-unirse" class="btn primary">
-            Unirse
-          </button>
-          <button id="btn-volver-estudiante" class="btn link">
-            Volver
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- =========================
-         LOGIN DOCENTE
-    ========================== -->
-    <section id="view-login-docente" class="view">
+    <section id="view-docente-login" class="view">
       <div class="card">
         <h2>Iniciar sesión (Docente)</h2>
 
+        <p class="help">
+          Inicia sesión para crear y supervisar actividades. Los docentes no participan en el juego.
+        </p>
+
         <label class="field">
-          <span>Usuario (docente)</span>
+          <span>Correo electrónico</span>
           <input
-            id="doc-login-usuario"
-            type="text"
-            placeholder="Ej. ProfeLuis"
+            id="docente-login-email"
+            type="email"
+            placeholder="ejemplo@colegio.edu.pe"
+            autocomplete="email"
           />
         </label>
 
         <label class="field">
           <span>Contraseña</span>
           <input
-            id="doc-login-pass"
+            id="docente-login-password"
             type="password"
-            placeholder="••••••"
+            placeholder="••••••••"
+            autocomplete="current-password"
           />
         </label>
 
+        <p id="docente-login-error" class="error"></p>
+
         <div class="buttons-column">
-          <button id="btn-doc-login-ingresar" class="btn primary">
+          <button id="btn-docente-login" class="btn primary">
             Ingresar
           </button>
-          <button id="btn-doc-login-registrarse" class="btn">
-            Registrarse
+          <button id="btn-docente-ir-registro" class="btn">
+            Registrarme como docente
           </button>
-          <button id="btn-doc-login-volver" class="btn link">
-            Volver
+          <button id="btn-docente-login-volver" class="btn link">
+            Volver al menú
           </button>
         </div>
       </div>
     </section>
 
     <!-- =========================
-         REGISTRO DOCENTE (maqueta)
+         VISTA: REGISTRO DOCENTE
     ========================== -->
-    <section id="view-registro-docente" class="view">
+    <section id="view-docente-registro" class="view">
       <div class="card">
         <h2>Registro de docente</h2>
 
         <label class="field">
-          <span>Nombre</span>
+          <span>Nombres</span>
           <input
-            id="doc-reg-nombre"
+            id="docente-reg-nombres"
             type="text"
-            placeholder="Ej. Luis"
+            placeholder="Ej. Luis Alberto"
+            autocomplete="given-name"
           />
         </label>
 
         <label class="field">
-          <span>Apellido</span>
+          <span>Apellidos</span>
           <input
-            id="doc-reg-apellido"
+            id="docente-reg-apellidos"
             type="text"
-            placeholder="Ej. Aguilar"
+            placeholder="Ej. Aguilar Pérez"
+            autocomplete="family-name"
           />
         </label>
 
         <label class="field">
-          <span>Usuario</span>
+          <span>Correo institucional</span>
           <input
-            id="doc-reg-usuario"
-            type="text"
-            placeholder="Ej. ProfeLuis"
+            id="docente-reg-email"
+            type="email"
+            placeholder="ejemplo@colegio.edu.pe"
+            autocomplete="email"
           />
         </label>
 
         <label class="field">
           <span>Contraseña</span>
           <input
-            id="doc-reg-pass"
+            id="docente-reg-password"
             type="password"
-            placeholder="••••••"
+            placeholder="Mínimo 6 caracteres"
+            autocomplete="new-password"
           />
         </label>
 
         <label class="field">
           <span>Repetir contraseña</span>
           <input
-            id="doc-reg-pass2"
+            id="docente-reg-password2"
             type="password"
-            placeholder="••••••"
+            placeholder="Repite la contraseña"
+            autocomplete="new-password"
           />
         </label>
 
+        <p id="docente-reg-error" class="error"></p>
+
         <div class="buttons-row">
-          <button id="btn-doc-reg-crear" class="btn success">
-            Registrar
+          <button id="btn-docente-registrar" class="btn success">
+            Crear cuenta
           </button>
-          <button id="btn-doc-reg-volver" class="btn link">
-            Volver
+          <button id="btn-docente-registro-volver" class="btn link">
+            Ya tengo cuenta
           </button>
         </div>
       </div>
     </section>
 
     <!-- =========================
-         REGISTRO OK
+         VISTA: PANEL DOCENTE / DASHBOARD
     ========================== -->
-    <section id="view-registro-ok" class="view">
+    <section id="view-docente-dashboard" class="view">
       <div class="card">
-        <h2>Registro completado</h2>
-        <p>Tu cuenta de docente se ha registrado (maquetación).</p>
-        <button id="btn-ir-a-login" class="btn primary">
-          Ir a iniciar sesión
+        <header class="juego-header">
+          <div>
+            <h2>Panel del docente</h2>
+            <p class="small">
+              Docente: <strong id="docente-dashboard-nombre">---</strong>
+            </p>
+          </div>
+          <button id="btn-docente-cerrar-sesion" class="btn link small-btn">
+            Cerrar sesión
+          </button>
+        </header>
+
+        <div class="buttons-row" style="margin-bottom: 10px;">
+          <button id="btn-docente-nueva-actividad" class="btn primary">
+            Nueva actividad de Ahorcado
+          </button>
+        </div>
+
+        <h3>Mis actividades</h3>
+        <p class="help">
+          Selecciona una actividad para ver sus códigos de grupos, el avance del juego y los resultados.
+        </p>
+
+        <ul id="docente-actividades-lista" class="lista-actividades">
+          <!-- Se rellenará por JS con las actividades del docente -->
+        </ul>
+
+        <button id="btn-docente-dashboard-volver" class="btn link">
+          Volver al menú principal
         </button>
       </div>
     </section>
 
     <!-- =========================
-         SELECCIONAR JUEGO
+         VISTA: CREAR ACTIVIDAD DOCENTE
     ========================== -->
-    <section id="view-seleccionar-juego" class="view">
+    <section id="view-docente-crear-actividad" class="view">
       <div class="card">
-        <h2>Seleccionar juego</h2>
+        <h2>Nueva actividad de Ahorcado</h2>
 
         <label class="field">
-          <span>Juego</span>
-          <select id="select-juego">
-            <option value="ahorcado" selected>Ahorcado</option>
-            <!-- Futuro: agregar otros juegos -->
-          </select>
+          <span>Nombre de la actividad</span>
+          <input
+            id="actividad-nombre"
+            type="text"
+            placeholder="Ej. Personal Social - Regiones del Perú"
+          />
         </label>
 
-        <p class="help">
-          Por ahora solo usamos Ahorcado con contenido de Personal Social – Perú.
-        </p>
-
-        <div class="buttons-row">
-          <button id="btn-ir-crear-sala" class="btn primary">
-            Siguiente
-          </button>
-          <button id="btn-seljuego-volver" class="btn link">
-            Volver
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- =========================
-         CREAR SALA (flujo previo)
-    ========================== -->
-    <section id="view-crear-sala" class="view">
-      <div class="card">
-        <h2>Crear sala</h2>
+        <label class="field">
+          <span>Pack de contenido</span>
+          <select id="actividad-pack">
+            <option value="peru-personal-social" selected>
+              Perú – Personal Social (Símbolos, regiones, patrimonio, valores)
+            </option>
+            <!-- Futuro: más packs -->
+          </select>
+        </label>
 
         <div class="grid-2">
           <label class="field">
             <span>Cantidad de grupos</span>
             <input
-              id="cfg-grupos"
+              id="actividad-num-grupos"
               type="number"
               min="1"
               max="10"
-              value="1"
+              value="3"
             />
           </label>
 
           <label class="field">
-            <span>Integrantes por grupo</span>
+            <span>Máx. integrantes por grupo</span>
             <input
-              id="cfg-integrantes"
+              id="actividad-max-integrantes"
               type="number"
               min="2"
               max="8"
-              value="2"
+              value="4"
+            />
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <label class="field">
+            <span>Tiempo por ronda (segundos)</span>
+            <input
+              id="actividad-tiempo-ronda"
+              type="number"
+              min="20"
+              max="300"
+              value="90"
+            />
+          </label>
+
+          <label class="field">
+            <span>Número de rondas</span>
+            <input
+              id="actividad-num-rondas"
+              type="number"
+              min="3"
+              max="10"
+              value="5"
             />
           </label>
         </div>
 
         <p class="help">
-          En esta versión solo se creará una sala, usando tu lógica actual.
-          Estos campos son maquetación para tus bocetos de multi-grupo.
+          El sistema de puntajes considerará letras acertadas, letras erradas y el tiempo utilizado en cada ronda.
         </p>
 
-        <label class="field">
-          <span>Tu nombre (docente)</span>
-          <input
-            id="docente-nombre-alt"
-            type="text"
-            placeholder="Ej. Profe Luis"
-          />
-        </label>
+        <p id="actividad-crear-error" class="error"></p>
 
         <div class="buttons-row">
-          <button id="btn-crear-sala-flow" class="btn success">
-            Crear sala
+          <button id="btn-actividad-crear" class="btn success">
+            Crear actividad
           </button>
-          <button id="btn-crear-sala-volver" class="btn link">
-            Volver
+          <button id="btn-actividad-crear-cancelar" class="btn link">
+            Cancelar
           </button>
         </div>
       </div>
     </section>
 
     <!-- =========================
-         VISTA DOCENTE (original)
+         VISTA: DETALLE DE ACTIVIDAD (DOCENTE)
     ========================== -->
-    <section id="view-docente" class="view">
+    <section id="view-docente-actividad" class="view">
       <div class="card">
-        <h2>Panel del docente</h2>
+        <header class="juego-header">
+          <div>
+            <h2 id="actividad-detalle-titulo">Actividad</h2>
+            <p class="small">
+              Código general: <strong id="actividad-detalle-codigo">------</strong>
+            </p>
+          </div>
+          <button id="btn-actividad-volver-dashboard" class="btn link small-btn">
+            Volver al panel
+          </button>
+        </header>
+
+        <h3>Grupos y códigos</h3>
+        <p class="help">
+          Comparte el código de cada grupo con tus estudiantes. Los grupos acumulan puntos en conjunto.
+        </p>
+
+        <ul id="actividad-grupos-lista" class="lista-actividades">
+          <!-- JS inserta: Grupo A, B, C: código, estado, puntaje -->
+        </ul>
+
+        <div class="buttons-row" style="margin-top: 12px;">
+          <button id="btn-actividad-ver-resultados" class="btn secondary" disabled>
+            Ver resultados / ranking
+          </button>
+          <button id="btn-actividad-finalizar" class="btn link">
+            Finalizar actividad
+          </button>
+        </div>
+
+        <p id="actividad-detalle-mensaje" class="help"></p>
+      </div>
+    </section>
+
+    <!-- =========================
+         VISTA: UNIRSE (ESTUDIANTE)
+    ========================== -->
+    <section id="view-estudiante-join" class="view">
+      <div class="card">
+        <h2>Unirse a un grupo</h2>
+
+        <p class="help">
+          Ingresa el código de grupo que te dio tu docente y escribe tu nombre.
+        </p>
+
+        <label class="field">
+          <span>Código de grupo</span>
+          <input
+            id="estudiante-codigo-grupo"
+            type="text"
+            maxlength="8"
+            placeholder="Ej. G1X3PZ"
+          />
+        </label>
 
         <label class="field">
           <span>Tu nombre</span>
           <input
-            id="docente-nombre"
+            id="estudiante-nombre"
             type="text"
-            placeholder="Ej. Profe Luis"
+            placeholder="Ej. Camila"
           />
         </label>
 
+        <p id="estudiante-join-error" class="error"></p>
+
         <div class="buttons-row">
-          <button id="btn-crear-sala" class="btn primary">
-            Crear sala
+          <button id="btn-estudiante-unirse" class="btn primary">
+            Unirse al grupo
           </button>
-          <button id="btn-volver-docente" class="btn link">
+          <button id="btn-estudiante-join-volver" class="btn link">
             Volver al menú
-          </button>
-        </div>
-
-        <div id="docente-info-sala" class="docente-info hidden">
-          <h3>Información de la sala</h3>
-          <p>Código de sala:</p>
-          <div class="codigo-box">
-            <span id="texto-codigo">------</span>
-          </div>
-
-          <h3>Jugadores conectados</h3>
-          <ul id="lista-jugadores" class="lista-jugadores"></ul>
-
-          <button id="btn-iniciar-juego" class="btn success" disabled>
-            Iniciar juego
           </button>
         </div>
       </div>
     </section>
 
     <!-- =========================
-         VISTA JUEGO
+         VISTA: JUEGO (ESTUDIANTES)
     ========================== -->
     <section id="view-juego" class="view">
       <div class="card">
         <header class="juego-header">
           <div>
             <p class="small">
-              Jugador: <strong id="juego-nombre">---</strong>
-              <span id="juego-rol" class="pill" style="display:none;"></span>
+              Estudiante: <strong id="juego-nombre">---</strong>
             </p>
             <p class="small">
-              Código sala: <strong id="juego-codigo">------</strong>
+              Grupo: <strong id="juego-grupo-nombre">---</strong> ·
+              Código: <strong id="juego-grupo-codigo">------</strong>
             </p>
           </div>
-          <button id="btn-salir-juego" class="btn link small-btn">
+          <button id="btn-juego-salir" class="btn link small-btn">
             Salir
           </button>
         </header>
 
-        <!-- Aquí el JS insertará el SVG del ahorcado -->
-        <!-- (#ahorcado-container se crea dinámicamente en app.js) -->
+        <section class="juego-resumen">
+          <div class="juego-resumen-item">
+            <span class="label">Tu puntaje</span>
+            <span class="value" id="juego-puntaje-jugador">0</span>
+          </div>
+          <div class="juego-resumen-item">
+            <span class="label">Puntaje del grupo</span>
+            <span class="value" id="juego-puntaje-grupo">0</span>
+          </div>
+          <div class="juego-resumen-item">
+            <span class="label">Tiempo restante</span>
+            <span class="value" id="juego-tiempo-restante">--</span>
+          </div>
+        </section>
+
+        <!-- El contenedor del SVG se inyectará desde svg.js -->
+        <div id="ahorcado-container"></div>
 
         <section class="juego-info">
           <p>Ronda: <strong id="juego-ronda">1</strong></p>
@@ -346,7 +408,7 @@
 
         <section class="juego-datos">
           <p>Letras usadas: <span id="juego-letras">-</span></p>
-          <p>Fallos: <span id="juego-fallos">0</span> / 10</p>
+          <p>Fallos: <span id="juego-fallos">0</span></p>
         </section>
 
         <section class="juego-turno">
@@ -354,12 +416,12 @@
 
           <div class="turno-input">
             <input
-              id="input-letra"
+              id="juego-input-letra"
               type="text"
               maxlength="1"
               placeholder="Letra"
             />
-            <button id="btn-enviar-letra" class="btn primary">
+            <button id="btn-juego-enviar-letra" class="btn primary">
               Enviar
             </button>
           </div>
@@ -368,14 +430,65 @@
         <p id="juego-mensaje" class="juego-mensaje"></p>
 
         <section class="juego-jugadores">
-          <h3>Jugadores en la sala</h3>
-          <ul id="juego-lista-jugadores" class="lista-jugadores"></ul>
+          <h3>Integrantes del grupo</h3>
+          <ul id="juego-lista-jugadores" class="lista-jugadores">
+            <!-- JS inserta estudiantes del grupo -->
+          </ul>
         </section>
+      </div>
+    </section>
+
+    <!-- =========================
+         VISTA: RESULTADOS / RANKING POR GRUPOS
+    ========================== -->
+    <section id="view-resultados" class="view">
+      <div class="card">
+        <header class="juego-header">
+          <div>
+            <h2>Resultados de la actividad</h2>
+            <p class="small">
+              Actividad: <strong id="resultados-actividad-nombre">---</strong>
+            </p>
+          </div>
+          <button id="btn-resultados-volver-dashboard" class="btn link small-btn">
+            Volver al panel
+          </button>
+        </header>
+
+        <h3>Ranking de grupos</h3>
+        <p class="help">
+          Los puntajes consideran letras acertadas, letras erradas y el tiempo utilizado.
+        </p>
+
+        <ol id="resultados-ranking" class="lista-ranking">
+          <!-- JS inserta: posición, nombre de grupo, puntaje total -->
+        </ol>
+
+        <h3 style="margin-top: 16px;">Detalle por grupo</h3>
+        <div id="resultados-grupos-detalle" class="resultados-detalle">
+          <!--
+            JS creará <details> por grupo:
+            <details>
+              <summary>Grupo A – 150 puntos</summary>
+              <ul>
+                <li>Camila: 60 pts</li>
+                <li>Juan: 50 pts</li>
+                ...
+              </ul>
+            </details>
+          -->
+        </div>
+
+        <div class="buttons-row" style="margin-top: 14px;">
+          <button id="btn-resultados-volver-menu-estudiante" class="btn link">
+            Ir al menú principal
+          </button>
+        </div>
       </div>
     </section>
   </main>
 
-  <!-- Script principal -->
-  <script type="module" src="app.js"></script>
+  <!-- JS principal: orquesta módulos firebase, ui, game, rounds, svg -->
+  <script type="module" src="public/js/app.js"></script>
 </body>
 </html>

@@ -423,3 +423,299 @@ select:focus {
     align-items: center;
   }
 }
+
+/* ======================================================
+   ESTILOS AÑADIDOS / MEJORADOS PARA LA NUEVA ARQUITECTURA
+   ====================================================== */
+
+/* =============================
+   PILLS PARA ESTADOS
+   ============================= */
+
+.pill-activa {
+  background: rgba(16, 185, 129, 0.18);
+  color: #059669;
+}
+
+.pill-esperando {
+  background: rgba(37, 99, 235, 0.14);
+  color: #1d4ed8;
+}
+
+.pill-jugando {
+  background: rgba(251, 146, 60, 0.2);
+  color: #ea580c;
+}
+
+.pill-finalizada {
+  background: rgba(239, 68, 68, 0.2);
+  color: #b91c1c;
+}
+
+
+/* =============================
+   LISTA DE ACTIVIDADES (DOCENTE)
+   ============================= */
+
+.lista-actividades {
+  list-style: none;
+  margin: 12px 0;
+  padding: 0;
+}
+
+.actividad-item {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(17, 25, 40, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.16s ease;
+}
+
+.actividad-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(17, 25, 40, 0.12);
+}
+
+.actividad-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actividad-nombre {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.actividad-meta {
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: #6b7280;
+  display: flex;
+  justify-content: space-between;
+}
+
+
+/* =============================
+   LISTA DE GRUPOS EN ACTIVIDAD
+   ============================= */
+
+.grupo-item {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 4px 10px rgba(17, 25, 40, 0.06);
+}
+
+.grupo-main {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.grupo-nombre {
+  font-weight: 600;
+  color: #1f2933;
+}
+
+.grupo-estado {
+  margin-left: 8px;
+}
+
+.grupo-codigo strong {
+  font-family: monospace;
+  letter-spacing: 0.1em;
+}
+
+.grupo-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.grupo-actions .btn {
+  margin-left: 4px;
+  padding: 6px 12px;
+}
+
+
+/* =============================
+   LISTA DE JUGADORES EN JUEGO
+   ============================= */
+
+.jugador-item {
+  display: flex;
+  justify-content: space-between;
+  background: #f9fafb;
+  border-radius: 999px;
+  padding: 6px 12px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.jugador-item.jugador-actual {
+  background: rgba(37, 99, 235, 0.1);
+  font-weight: 600;
+  border: 1px solid rgba(37, 99, 235, 0.35);
+}
+
+
+/* =============================
+   RANKING FINAL
+   ============================= */
+
+.lista-ranking {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.lista-ranking li {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 3px 8px rgba(17, 25, 40, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+}
+
+.ranking-posicion {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.ranking-grupo {
+  font-weight: 500;
+}
+
+.ranking-puntaje {
+  font-weight: 700;
+  color: #2563eb;
+}
+
+
+/* =============================
+   DETALLE POR GRUPO (RESULTADOS)
+   ============================= */
+
+.resultados-detalle details {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(17, 25, 40, 0.07);
+}
+
+.resultados-detalle summary {
+  font-weight: 600;
+  color: #1f2937;
+  outline: none;
+}
+
+.lista-jugadores-detalle {
+  list-style: none;
+  padding-left: 12px;
+  margin-top: 8px;
+}
+
+.lista-jugadores-detalle li {
+  padding: 4px 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+
+/* =============================
+   CONTADORES EN JUEGO
+   ============================= */
+
+.juego-resumen {
+  display: flex;
+  justify-content: space-around;
+  margin: 12px 0 14px;
+}
+
+.juego-resumen-item {
+  text-align: center;
+}
+
+.juego-resumen-item .label {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.juego-resumen-item .value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+
+/* =============================
+   MEJORAS A LAS CARD Y VISTAS
+   ============================= */
+
+.view {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =============================
+   RESPONSIVE EXTRA
+   ============================= */
+
+@media (max-width: 450px) {
+  .juego-resumen {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .grupo-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .actividad-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .lista-ranking li {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+@media (min-width: 900px) {
+  .lista-actividades li,
+  .grupo-item,
+  .lista-ranking li,
+  .resultados-detalle details {
+    padding: 18px 20px;
+  }
+}
